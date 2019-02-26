@@ -10,6 +10,9 @@ const userSchema = mongoose.Schema({
         type: String,
         required: true,
     },
+    token: {
+        type: String,
+    },
     confirmPassword: {
         type: String,
     },
