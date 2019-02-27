@@ -20,10 +20,10 @@ route.post('/signup', (req, res) => {
                 });
                 user.save()
                     .then(() => res.json('Email Created Successfully'))
-                    .catch(() => res.json('Auth Error'))
+                    .catch(() => res.json('23 Auth Error'))
             })
         })
-        .catch(() => res.json('Auth Error'))
+        .catch(() => res.json('26 Auth Error'))
 });
 
 route.post('/signin', (req, res) => {
@@ -33,19 +33,14 @@ route.post('/signin', (req, res) => {
             if (doc) return bcryptjs.compare(req.body.password, doc.password, (err, isMatch) => {
                 if (err) return res.json("Password mismatched");
                 if (isMatch) {
-                    const { email } = req.body;
-                    const token = jwt.sign({ email }, process.env.SECRET, { expiresIn: '1h' });
-                    doc.token = token;
-                    doc.save()
-                        .then(() => {
-                            res.json("Successful Login");
-                        })
-                        .catch(() => res.json('Auth Error'))
+                    const { _id, email } = doc;
+                    const token = jwt.sign({ _id, email }, process.env.SECRET, { expiresIn: '1h' });
+                    res.json({ token });
                 }
             });
-            return res.json("Auth Error");
+            return res.json("41 Auth Error");
         })
-        .catch(() => res.json('Auth Error'))
+        .catch(() => res.json('43 Auth Error'))
 });
 
 module.exports = route;
