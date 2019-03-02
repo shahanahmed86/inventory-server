@@ -19,8 +19,8 @@ app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-const { user, password } = process.env;
-const url = `mongodb://${user}:${password}@ds349455.mlab.com:49455/inventory`;
+const { USER, PASSWORD } = process.env;
+const url = `mongodb://${USER}:${PASSWORD}@ds349455.mlab.com:49455/inventory`;
 mongoose.connect(url, { useNewUrlParser: true })
     .then(() => console.log('mlab is connected'))
     .catch(err => {

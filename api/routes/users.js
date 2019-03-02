@@ -31,14 +31,15 @@ route.post('/signin', (req, res) => {
         .exec()
         .then(doc => {
             if (doc) return bcryptjs.compare(req.body.password, doc.password, (err, isMatch) => {
-                if (err) return res.status(401).json("Password mismatched");
+                if (err) return res.status(401).json('Authentication Error');
                 if (isMatch) {
                     const { _id, email } = doc;
-                    const token = jwt.sign({ _id, email }, process.env.SECRET, { expiresIn: '1h' });
-                    res.status(200).json({ token });
+                    const token = jwt.sign({ _id, email }, process.env.JWT_KEY, { expiresIn: '1h' });
+                    return res.status(200).json({ token });
                 }
+                return res.status(401).json("Wrong password, please try again");
             });
-            return res.status(401).json("Sorry We don't recognize this email");
+            return res.status(401).json("Sorry, we don't recognize this email");
         })
         .catch(() => res.status(401).json('Authentication Error'))
 });
