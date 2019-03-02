@@ -2,7 +2,9 @@ const express = require('express');
 const bcryptjs = require("bcryptjs");
 const jwt = require('jsonwebtoken');
 const route = express.Router();
+
 const User = require('../models/user');
+const userAuth = require('../middleware/user-auth');
 
 route.post('/signup', (req, res) => {
     User.findOne({ email: req.body.email })
@@ -42,6 +44,16 @@ route.post('/signin', (req, res) => {
             return res.status(401).json("Sorry, we don't recognize this email");
         })
         .catch(() => res.status(401).json('Authentication Error'))
+});
+
+route.post('/', userAuth, (req, res) => {
+    User.findById(req.userData._id)
+        .select('cnic dob email first last gender maritalStatus mobile')
+        .exec().then(doc => {
+            res.status(200).json({ doc });
+        }).catch(err => {
+            res.status(401).json({ err });
+        });
 });
 
 module.exports = route;
