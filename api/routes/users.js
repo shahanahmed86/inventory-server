@@ -37,7 +37,7 @@ route.post('/signin', (req, res) => {
                 if (isMatch) {
                     const { _id, email } = doc;
                     const token = jwt.sign({ _id, email }, process.env.JWT_KEY, { expiresIn: '1h' });
-                    return res.status(200).json({ token });
+                    return res.status(200).cookie(`token`, token).json('Signed In Successfully');
                 }
                 return res.status(401).json("Wrong password, please try again");
             });
