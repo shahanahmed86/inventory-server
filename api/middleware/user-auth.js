@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken');
 
 module.exports = (req, res, next) => {
     try {
-        console.log(req.cookies);
         const token = req.cookies.token;
         const decoded = jwt.verify(token, process.env.JWT_KEY);
         const nowTime = Date.now() / 1000;

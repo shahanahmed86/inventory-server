@@ -35,9 +35,10 @@ route.post('/signin', (req, res) => {
             if (doc) return bcryptjs.compare(req.body.password, doc.password, (err, isMatch) => {
                 if (err) return res.status(401).json('Authentication Error');
                 if (isMatch) {
-                    const { _id, email } = doc;
-                    const token = jwt.sign({ _id, email }, process.env.JWT_KEY, { expiresIn: '1h' });
-                    return res.status(200).cookie(`token`, token).json('Signed In Successfully');
+                    const token = jwt.sign({ _id: doc._id }, process.env.JWT_KEY, { expiresIn: '1h' });
+                    return res.cookie('token', token, {
+                        httpOnly: true,
+                    }).json('Sign In Successfully');
                 }
                 return res.status(401).json("Wrong password, please try again");
             });
@@ -46,7 +47,7 @@ route.post('/signin', (req, res) => {
         .catch(() => res.status(401).json('Authentication Error'))
 });
 
-route.post('/', userAuth, (req, res) => {
+route.get('/', userAuth, (req, res) => {
     User.findById(req.userData._id)
         .select('cnic dob email first last gender maritalStatus mobile')
         .exec().then(doc => {
