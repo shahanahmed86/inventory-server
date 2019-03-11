@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 
 const userRoutes = require('./api/routes/users');
+const productRoutes = require('./api/routes/product');
 
 const app = express();
 
@@ -33,5 +34,6 @@ mongoose.connect(url, { useNewUrlParser: true })
     });
 
 app.use('/user', userRoutes);
+app.use('/product', productRoutes);
 
 module.exports = app;
