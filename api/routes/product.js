@@ -5,7 +5,7 @@ const Product = require('../models/product');
 const userAuth = require('../middleware/user-auth');
 
 route.post(
-    '/save',
+    '/',
     userAuth,
     (req, res) => {
         const product = new Product();
@@ -20,7 +20,7 @@ route.post(
     });
 
 route.delete(
-    '/delete/:id',
+    '/:id',
     userAuth,
     (req, res) => {
         const _id = req.params.id;
@@ -30,7 +30,7 @@ route.delete(
     });
 
 route.put(
-    '/update/:id',
+    '/:id',
     userAuth,
     (req, res) => {
         const _id = req.params.id;
@@ -38,8 +38,8 @@ route.put(
         for (let key in req.body) {
             updatedProduct[key] = req.body[key];
         }
-        Product.updateOne({ _id }, { $set: updatedProduct }).then(doc => {
-            res.status(200).json({ doc });
+        Product.updateOne({ _id }, { $set: updatedProduct }).then(() => {
+            res.status(200).json('Product Updated Successfully');
         }).catch(err => res.status(500).json(err.errors));
     });
 
