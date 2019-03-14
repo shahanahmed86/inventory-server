@@ -2,7 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const route = express.Router();
 
-const Product = require('../models/product');
+const Vendor = require('../models/vendor');
 const userAuth = require('../middleware/user-auth');
 
 route.post(
@@ -10,15 +10,15 @@ route.post(
     userAuth,
     (req, res) => {
         const token = jwt.sign({ _id: req.userData._id }, process.env.JWT_KEY, { expiresIn: '1h' });
-        const product = new Product();
+        const vendor = new Vendor();
         for (let key in req.body) {
-            product[key] = req.body[key];
+            vendor[key] = req.body[key];
         }
-        product.save()
+        vendor.save()
             .then(() => {
                 res.status(201).cookie('token', token, {
                     httpOnly: true,
-                }).json('Product Saved');
+                }).json('Vendor Saved');
             })
             .catch(err => res.status(500).json(err.errors));
     });
@@ -28,11 +28,11 @@ route.get(
     userAuth,
     (req, res) => {
         const token = jwt.sign({ _id: req.userData._id }, process.env.JWT_KEY, { expiresIn: '1h' });
-        Product.find().exec().then(docs => {
+        Vendor.find().exec().then(docs => {
             res.status(200).cookie('token', token, {
                 httpOnly: true,
             }).json({
-                products: docs.map(val => val)
+                vendors: docs.map(val => val)
             });
         }).catch(err => res.status(500).json(err.errors))
     });
@@ -43,14 +43,14 @@ route.put(
     (req, res) => {
         const token = jwt.sign({ _id: req.userData._id }, process.env.JWT_KEY, { expiresIn: '1h' });
         const _id = req.params.id;
-        const updatedProduct = {};
+        const updatedVendor = {};
         for (let key in req.body) {
-            updatedProduct[key] = req.body[key];
+            updatedVendor[key] = req.body[key];
         }
-        Product.updateOne({ _id }, { $set: updatedProduct }).then(() => {
+        Vendor.updateOne({ _id }, { $set: updatedVendor }).then(() => {
             res.status(200).cookie('token', token, {
                 httpOnly: true,
-            }).json('Product Updated Successfully');
+            }).json('Vendor Updated Successfully');
         }).catch(err => res.status(500).json(err.errors));
     });
 
@@ -60,10 +60,10 @@ route.delete(
     (req, res) => {
         const token = jwt.sign({ _id: req.userData._id }, process.env.JWT_KEY, { expiresIn: '1h' });
         const _id = req.params.id;
-        Product.deleteOne({ _id }).then(() => {
+        Vendor.deleteOne({ _id }).then(() => {
             res.status(200).cookie('token', token, {
                 httpOnly: true,
-            }).json('Product Deleted');
+            }).json('Vendor Deleted');
         }).catch(err => res.status(500).json(err.errors));
     });
 

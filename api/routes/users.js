@@ -47,6 +47,10 @@ route.post('/signin', (req, res) => {
         .catch(() => res.status(401).json('Authentication Error'))
 });
 
+route.post('/logout', (req, res) => {
+    return res.clearCookie('token').json('Sign Out Successfully');
+});
+
 route.get('/', userAuth, (req, res) => {
     User.findById(req.userData._id)
         .select('cnic dob email first last gender maritalStatus mobile')
