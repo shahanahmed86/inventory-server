@@ -20,7 +20,7 @@ route.post(
                     httpOnly: true,
                 }).json('Vendor Saved');
             })
-            .catch(err => res.status(500).json(err.errors));
+            .catch(err => res.status(500).json(err));
     });
 
 route.get(
@@ -34,7 +34,7 @@ route.get(
             }).json({
                 vendors: docs.map(val => val)
             });
-        }).catch(err => res.status(500).json(err.errors))
+        }).catch(err => res.status(500).json(err))
     });
 
 route.put(
@@ -51,7 +51,7 @@ route.put(
             res.status(200).cookie('token', token, {
                 httpOnly: true,
             }).json('Vendor Updated Successfully');
-        }).catch(err => res.status(500).json(err.errors));
+        }).catch(err => res.status(500).json(err));
     });
 
 route.delete(
@@ -64,7 +64,7 @@ route.delete(
             res.status(200).cookie('token', token, {
                 httpOnly: true,
             }).json('Vendor Deleted');
-        }).catch(err => res.status(500).json(err.errors));
+        }).catch(err => res.status(500).json(err));
     });
 
 module.exports = route;

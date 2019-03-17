@@ -20,7 +20,7 @@ route.post(
                     httpOnly: true,
                 }).json('Client Saved');
             })
-            .catch(err => res.status(500).json(err.errors));
+            .catch(err => res.status(500).json(err));
     });
 
 route.get(
@@ -34,7 +34,7 @@ route.get(
             }).json({
                 clients: docs.map(val => val)
             });
-        }).catch(err => res.status(500).json(err.errors))
+        }).catch(err => res.status(500).json(err))
     });
 
 route.put(
@@ -51,7 +51,7 @@ route.put(
             res.status(200).cookie('token', token, {
                 httpOnly: true,
             }).json('Client Updated Successfully');
-        }).catch(err => res.status(500).json(err.errors));
+        }).catch(err => res.status(500).json(err));
     });
 
 route.delete(
@@ -64,7 +64,7 @@ route.delete(
             res.status(200).cookie('token', token, {
                 httpOnly: true,
             }).json('Client Deleted');
-        }).catch(err => res.status(500).json(err.errors));
+        }).catch(err => res.status(500).json(err));
     });
 
 module.exports = route;
