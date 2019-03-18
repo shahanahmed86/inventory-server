@@ -12,9 +12,9 @@ route.post(
     userAuth,
     (req, res) => {
         const token = jwt.sign({ _id: req.userData._id }, process.env.JWT_KEY, { expiresIn: '1h' });
-        Product.findOne({ _id: req.body.productId }).exec().then(productMatch => {
-            if (productMatch) return Vendor.findOne({ _id: req.body.vendorId }).exec().then(vendorMatch => {
-                if (vendorMatch) return Purchase.findOne({ invoice: req.body.invoice }).exec().then(doc => {
+        Product.findOne({ _id: req.body.productId }).exec().then(product => {
+            if (product) return Vendor.findOne({ _id: req.body.vendorId }).exec().then(vendor => {
+                if (vendor) return Purchase.findOne({ invoice: req.body.invoice }).exec().then(doc => {
                     if (doc) return res.status(226).cookie('token', token, {
                         httpOnly: true
                     }).json('Invoice Number already exists');
@@ -23,7 +23,7 @@ route.post(
                         purchase[key] = req.body[key];
                     }
                     Product.updateOne({ _id: req.body.productId }, {
-                        $set: { quantity: productMatch.quantity + req.body.quantity }
+                        $set: { quantity: product.quantity + req.body.quantity }
                     }).then(() => {
                         purchase.save().then(() => {
                             return res.status(200).cookie('token', token, {
@@ -34,11 +34,11 @@ route.post(
                 }).catch(err => res.status(500).json(err));
                 return res.status(404).cookie('token', token, {
                     httpOnly: true
-                }).json('Make sure you have typed a valid vendor Id');
+                }).json('Please select a valid vendor from the list');
             }).catch(err => res.status(500).json(err));
             return res.status(404).cookie('token', token, {
                 httpOnly: true
-            }).json('Make sure you have typed a valid product Id');
+            }).json('Please select a valid vendor from the list');
         }).catch(err => res.status(500).json(err));
     });
 
@@ -65,14 +65,50 @@ route.put(
     (req, res) => {
         const token = jwt.sign({ _id: req.userData._id }, process.env.JWT_KEY, { expiresIn: '1h' });
         const _id = req.params.id;
-        const updatedPurchase = {};
-        for (let key in req.body) {
-            updatedPurchase[key] = req.body[key];
-        }
-        Purchase.updateOne({ _id }, { $set: updatedPurchase }).then(() => {
-            res.status(200).cookie('token', token, {
+        Purchase.findOne({ _id }).exec().then(invoice => {
+            if (invoice) return Product.findOne({ _id: invoice.productId }).exec().then(oldProduct => {
+                if (oldProduct) { 
+                    Product.findOne({ _id: req.body.productId }).exec().then(newProduct => {
+                        if (newProduct) {
+                            const oldSumQty = oldProduct.quantity - invoice.quantity;
+                            if (oldSumQty >= 0) {
+                                Product.updateOne({ _id: oldProduct._id }, {
+                                    $set: { quantity: oldSumQty }
+                                }).exec().then(() => {
+                                    Product.updateOne({ _id: newProduct._id }, {
+                                        $set: { quantity: newProduct.quantity + req.body.quantity }
+                                    }).then(() => {
+                                        const updatedProduct = {};
+                                        for (let key in req.body) {
+                                            updatedProduct[key] = req.body[key];
+                                        }
+                                        Purchase.updateOne({ _id }, { $set: updatedProduct }).exec().then(() => {
+                                            return res.status(200).cookie('token', token, {
+                                                httpOnly: true,
+                                            }).json('Invoice edited');
+                                        }).catch(err => res.status(500).json(err));
+                                    }).catch(err => res.status(500).json(err));
+                                }).catch(err => res.status(500).json(err));
+                            } else {
+                                return res.status(400).cookie('token', token, {
+                                    httpOnly: true,
+                                }).json(`${oldProduct.productName} will get negative by ${oldSumQty}, if edited.`);
+                            }
+                        } else {
+                            return res.status(404).cookie('token', token, {
+                                httpOnly: true,
+                            }).json('Product not found');
+                        }
+                    })
+                } else {
+                    return res.status(404).cookie('token', token, {
+                        httpOnly: true,
+                    }).json('Product not found');
+                }
+            }).catch(err => res.status(500).json(err));
+            return res.status(404).cookie('token', token, {
                 httpOnly: true,
-            }).json('Purchase Updated Successfully');
+            }).json('Invoice not found');
         }).catch(err => res.status(500).json(err));
     });
 
@@ -82,20 +118,31 @@ route.delete(
     (req, res) => {
         const token = jwt.sign({ _id: req.userData._id }, process.env.JWT_KEY, { expiresIn: '1h' });
         const _id = req.params.id;
-        Purchase.findOne({ _id: req.params.id }).exec().then(invoice => {
-            if (invoice) return Product.findOne({ _id: invoice.productId }).exec().then(doc => {
-                Product.updateOne({ _id: doc._id }, {
-                    $set: {
-                        quantity: doc.quantity + req.body.quantity
-                    }
-                }).then(() => {
-                    Purchase.deleteOne({ _id }).then(() => {
-                        return res.status(200).cookie('token', token, {
-                            httpOnly: true,
-                        }).json('Purchase Deleted');
+        Purchase.findOne({ _id }).exec().then(invoice => {
+            if (invoice) return Product.findOne({ _id: invoice.productId }).exec().then(product => {
+                if (product) {
+                    const getSum = product.quantity - invoice.quantity;
+                    if (getSum >= 0) return Product.updateOne({ _id: invoice.productId }, {
+                        $set: { quantity: getSum }
+                    }).then(() => {
+                        Purchase.deleteOne({ _id }).exec().then(() => {
+                            return res.status(200).cookie('token', token, {
+                                httpOnly: true,
+                            }).json('Invoice deleted');
+                        }).catch(err => res.status(500).json(err));
                     }).catch(err => res.status(500).json(err));
-                }).catch(err => res.status(500).json(err));
+                    return res.status(400).cookie('token', token, {
+                        httpOnly: true,
+                    }).json(`${product.productName} will get negative by ${getSum}, if deleted.`);
+                } else {
+                    return res.status(404).cookie('token', token, {
+                        httpOnly: true,
+                    }).json('Product not found');
+                }
             }).catch(err => res.status(500).json(err));
+            return res.status(404).cookie('token', token, {
+                httpOnly: true,
+            }).json('Invoice not found');
         }).catch(err => res.status(500).json(err));
     });
 
