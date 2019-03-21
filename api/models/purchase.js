@@ -9,32 +9,30 @@ const purchaseSchema = mongoose.Schema({
         type: String,
         required: true,
     },
-    productId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Product',
-        required: true
-    },
     vendorId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Vendor',
         required: true
     },
-    quantity: {
-        type: Number,
-        required: true,
-    },
-    costPrice: {
-        type: Number,
-        required: true,
-    },
-    value: {
-        type: Number,
-        required: true,
-    },
-    sellingPrice: {
-        type: Number,
-        required: true,
-    },
+    products: [{
+        productId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Product',
+            required: true
+        },
+        quantity: {
+            type: Number,
+            required: true,
+        },
+        costPrice: {
+            type: Number,
+            required: true,
+        },
+        value: {
+            type: Number,
+            required: true,
+        },
+    }]
 });
 
 module.exports = mongoose.model('Purchase', purchaseSchema);
