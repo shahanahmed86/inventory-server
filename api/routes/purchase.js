@@ -12,29 +12,20 @@ route.post(
     userAuth,
     (req, res) => {
         const token = jwt.sign({ _id: req.userData._id }, process.env.JWT_KEY, { expiresIn: '1h' });
-        Product.findOne({ _id: req.body.productId }).exec().then(product => {
-            if (product) return Vendor.findOne({ _id: req.body.vendorId }).exec().then(vendor => {
-                if (vendor) return Purchase.findOne({ invoice: req.body.invoice }).exec().then(doc => {
-                    if (doc) return res.status(226).cookie('token', token, {
-                        httpOnly: true
-                    }).json('Invoice Number already exists');
-                    const purchase = new Purchase();
-                    for (let key in req.body) {
-                        purchase[key] = req.body[key];
-                    }
-                    Product.updateOne({ _id: req.body.productId }, {
-                        $set: { quantity: product.quantity + req.body.quantity }
-                    }).then(() => {
-                        purchase.save().then(() => {
-                            return res.status(200).cookie('token', token, {
-                                httpOnly: true
-                            }).json('Purchase saved');
-                        }).catch(err => res.status(500).json(err));
-                    })
-                }).catch(err => res.status(500).json(err));
-                return res.status(404).cookie('token', token, {
+        Vendor.findOne({ _id: req.body.vendorId }).exec().then(vendor => {
+            if (vendor) return Purchase.findOne({ invoice: req.body.invoice }).exec().then(doc => {
+                if (doc) return res.status(226).cookie('token', token, {
                     httpOnly: true
-                }).json('Please select a valid vendor from the list');
+                }).json('Invoice Number already exists');
+                const purchase = new Purchase();
+                for (let key in req.body) {
+                    purchase[key] = req.body[key];
+                }
+                purchase.save().then(() => {
+                    return res.status(200).cookie('token', token, {
+                        httpOnly: true
+                    }).json('Purchase saved');
+                }).catch(err => res.status(500).json(err));
             }).catch(err => res.status(500).json(err));
             return res.status(404).cookie('token', token, {
                 httpOnly: true
@@ -67,7 +58,7 @@ route.put(
         const _id = req.params.id;
         Purchase.findOne({ _id }).exec().then(invoice => {
             if (invoice) return Product.findOne({ _id: invoice.productId }).exec().then(oldProduct => {
-                if (oldProduct) { 
+                if (oldProduct) {
                     Product.findOne({ _id: req.body.productId }).exec().then(newProduct => {
                         if (newProduct) {
                             const oldSumQty = oldProduct.quantity - invoice.quantity;
