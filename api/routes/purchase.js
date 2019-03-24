@@ -14,7 +14,7 @@ route.post(
         const token = jwt.sign({ _id: req.userData._id }, process.env.JWT_KEY, { expiresIn: '1h' });
         Vendor.findOne({ _id: req.body.vendorId }).exec().then(vendor => {
             if (vendor) return Purchase.findOne({ invoice: req.body.invoice }).exec().then(doc => {
-                if (doc) return res.status(226).cookie('token', token, {
+                if (doc) return res.status(400).cookie('token', token, {
                     httpOnly: true
                 }).json('Invoice Number already exists');
                 const purchase = new Purchase();
