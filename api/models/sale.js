@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const purchaseSchema = mongoose.Schema({
+const saleSchema = mongoose.Schema({
 	date: {
 		type: Date,
 		required: true
@@ -9,9 +9,9 @@ const purchaseSchema = mongoose.Schema({
 		type: String,
 		required: true
 	},
-	vendorId: {
+	clientId: {
 		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Vendor',
+		ref: 'Client',
 		required: true
 	},
 	products: [
@@ -25,15 +25,11 @@ const purchaseSchema = mongoose.Schema({
 				type: Number,
 				required: true
 			},
-			costPrice: {
+			sellingPrice: {
 				type: Number,
 				required: true
 			},
 			value: {
-				type: Number,
-				required: true
-			},
-			sellingPrice: {
 				type: Number,
 				required: true
 			}
@@ -41,4 +37,4 @@ const purchaseSchema = mongoose.Schema({
 	]
 });
 
-module.exports = mongoose.model('Purchase', purchaseSchema);
+module.exports = mongoose.model('Sale', saleSchema);

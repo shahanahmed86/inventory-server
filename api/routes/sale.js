@@ -2,17 +2,18 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const route = express.Router();
 
-const Vendor = require('../models/vendor');
+const Client = require('../models/client');
 const Purchase = require('../models/purchase');
+const Sale = require('../models/sale');
 const userAuth = require('../middleware/user-auth');
 
 route.post('/', userAuth, (req, res) => {
 	const token = jwt.sign({ _id: req.userData._id }, process.env.JWT_KEY, { expiresIn: '1h' });
-	Vendor.findOne({ _id: req.body.vendorId })
+	Client.findOne({ _id: req.body.clientId })
 		.exec()
-		.then((vendor) => {
-			if (vendor)
-				return Purchase.findOne({ invoice: req.body.invoice })
+		.then((client) => {
+			if (client)
+				return Sale.findOne({ invoice: req.body.invoice })
 					.exec()
 					.then((doc) => {
 						if (doc)
@@ -22,21 +23,27 @@ route.post('/', userAuth, (req, res) => {
 									httpOnly: true
 								})
 								.json('Invoice Number already exists');
-						const purchase = new Purchase();
-						for (let key in req.body) {
-							purchase[key] = req.body[key];
-						}
-						purchase
-							.save()
-							.then(() => {
-								return res
-									.status(200)
-									.cookie('token', token, {
-										httpOnly: true
-									})
-									.json('Purchase saved');
+						Purchase.find()
+							.exec()
+							.then((purchases) => {
+								console.log(purchases);
 							})
 							.catch((err) => res.status(500).json(err));
+						// const sale = new Sale();
+						// for (let key in req.body) {
+						// 	sale[key] = req.body[key];
+						// }
+						// sale
+						// 	.save()
+						// 	.then(() => {
+						// 		return res
+						// 			.status(200)
+						// 			.cookie('token', token, {
+						// 				httpOnly: true
+						// 			})
+						// 			.json('Sale saved');
+						// 	})
+						// 	.catch((err) => res.status(500).json(err));
 					})
 					.catch((err) => res.status(500).json(err));
 			return res
@@ -44,30 +51,30 @@ route.post('/', userAuth, (req, res) => {
 				.cookie('token', token, {
 					httpOnly: true
 				})
-				.json('Please select a valid vendor from the list');
+				.json('Please select a valid client from the list');
 		})
 		.catch((err) => res.status(500).json(err));
 });
 
 route.get('/', userAuth, (req, res) => {
 	const token = jwt.sign({ _id: req.userData._id }, process.env.JWT_KEY, { expiresIn: '1h' });
-	Purchase.find()
-		.populate('products.productId vendorId', 'productName vendorName')
+	Sale.find()
+		.populate('products.productId clientId', 'productName clientName')
 		.exec()
-		.then((purchases) => {
-			if (purchases)
+		.then((sales) => {
+			if (sales)
 				return res
 					.status(200)
 					.cookie('token', token, {
 						httpOnly: true
 					})
-					.json(purchases);
+					.json(sales);
 			return res
 				.status(404)
 				.cookie('token', token, {
 					httpOnly: true
 				})
-				.json('Purchase book is empty');
+				.json('Sale Book is empty');
 		})
 		.catch((err) => res.status(500).json(err));
 });
