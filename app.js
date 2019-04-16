@@ -1,9 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
-const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const Pusher = require('pusher');
 
 const userRoutes = require('./api/routes/users');
 const productRoutes = require('./api/routes/product');
@@ -12,31 +12,47 @@ const clientRoutes = require('./api/routes/client');
 const purchaseRoutes = require('./api/routes/purchase');
 const saleRoutes = require('./api/routes/sale');
 
+const Sale = require('./api/models/sale');
+
 const app = express();
 
 app.use(morgan('dev'));
 
+//JSON parsing/stringify
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+//cookie middleware
 app.use(cookieParser());
 
-app.use(cors({
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'PUT', 'PATCH', 'POST', 'DELETE'],
-    credentials: true,
-    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authentication', 'Authorization'],
-}));
+//cors middleware
+app.use(
+	cors({
+		origin: 'http://localhost:3000',
+		methods: [ 'GET', 'PUT', 'POST', 'DELETE' ],
+		credentials: true,
+		allowedHeaders: [ 'Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authentication', 'Authorization' ]
+	})
+);
 
-const { USER, PASSWORD } = process.env;
-const url = `mongodb://${USER}:${PASSWORD}@ds349455.mlab.com:49455/inventory`;
-mongoose.connect(url, { useNewUrlParser: true })
-    .then(() => console.log('mlab is connected'))
-    .catch(err => {
-        if (err.errmsg) return console.log(err.errmsg);
-        return console.log('database not connected')
-    });
+//connecting to the database
+require('./config/db');
 
+//connecting to the pusher
+const pusher = new Pusher({
+	appId: '761913',
+	key: 'f9126fc42e7cc112a924',
+	secret: '937186b271b1422dc5a1',
+	cluster: 'ap2',
+	useTLS: true
+});
+
+//on loading of an application
+app.get('/live', (req, res) => {
+	pusher.trigger('my-channel', 'my-event', { "message": "hello world" });
+});
+
+//routes
 app.use('/user', userRoutes);
 app.use('/product', productRoutes);
 app.use('/vendor', vendorRoutes);
