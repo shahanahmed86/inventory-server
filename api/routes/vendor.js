@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const route = express.Router();
 
+const pusher = require('../../config/pusherconfig');
 const Vendor = require('../models/vendor');
 const userAuth = require('../middleware/user-auth');
 
@@ -16,7 +17,8 @@ route.post(
         }
         vendor.save()
             .then(() => {
-                res.status(201).cookie('token', token, {
+                pusher.trigger('inventory', 'vendors', { "message": "Vendors" });
+                return res.status(201).cookie('token', token, {
                     httpOnly: true,
                 }).json('Vendor Saved');
             })
@@ -48,7 +50,8 @@ route.put(
             updatedVendor[key] = req.body[key];
         }
         Vendor.updateOne({ _id }, { $set: updatedVendor }).then(() => {
-            res.status(200).cookie('token', token, {
+            pusher.trigger('inventory', 'vendors', { "message": "Vendors" });
+            return res.status(200).cookie('token', token, {
                 httpOnly: true,
             }).json('Vendor Updated Successfully');
         }).catch(err => res.status(500).json(err));
@@ -61,7 +64,8 @@ route.delete(
         const token = jwt.sign({ _id: req.userData._id }, process.env.JWT_KEY, { expiresIn: '1h' });
         const _id = req.params.id;
         Vendor.deleteOne({ _id }).then(() => {
-            res.status(200).cookie('token', token, {
+            pusher.trigger('inventory', 'vendors', { "message": "Vendors" });
+            return res.status(200).cookie('token', token, {
                 httpOnly: true,
             }).json('Vendor Deleted');
         }).catch(err => res.status(500).json(err));

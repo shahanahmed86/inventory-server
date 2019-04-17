@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const route = express.Router();
 
+const pusher = require('../../config/pusherconfig');
 const Client = require('../models/client');
 const Sale = require('../models/sale');
 const userAuth = require('../middleware/user-auth');
@@ -29,6 +30,7 @@ route.post('/', userAuth, (req, res) => {
 						sale
 							.save()
 							.then(() => {
+								pusher.trigger('inventory', 'sales', { "message": "Sales" });
 								return res
 									.status(200)
 									.cookie('token', token, {
@@ -78,6 +80,7 @@ route.put('/:id', userAuth, (req, res) => {
 				}
 				return Sale.updateOne({ _id: req.params.id }, { $set: updatedSale })
 					.then(() => {
+						pusher.trigger('inventory', 'sales', { "message": "Sales" });
 						return res
 							.status(201)
 							.cookie('token', token, {
@@ -103,7 +106,8 @@ route.delete('/:id', userAuth, (req, res) => {
 	const _id = req.params.id;
 	Sale.deleteOne({ _id })
 		.then(() => {
-			res
+			pusher.trigger('inventory', 'sales', { "message": "Sales" });
+			return res
 				.status(200)
 				.cookie('token', token, {
 					httpOnly: true

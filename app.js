@@ -3,7 +3,6 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
-const Pusher = require('pusher');
 
 const userRoutes = require('./api/routes/users');
 const productRoutes = require('./api/routes/product');
@@ -11,8 +10,6 @@ const vendorRoutes = require('./api/routes/vendor');
 const clientRoutes = require('./api/routes/client');
 const purchaseRoutes = require('./api/routes/purchase');
 const saleRoutes = require('./api/routes/sale');
-
-const Sale = require('./api/models/sale');
 
 const app = express();
 
@@ -37,20 +34,6 @@ app.use(
 
 //connecting to the database
 require('./config/db');
-
-//connecting to the pusher
-const pusher = new Pusher({
-	appId: '761913',
-	key: 'f9126fc42e7cc112a924',
-	secret: '937186b271b1422dc5a1',
-	cluster: 'ap2',
-	useTLS: true
-});
-
-//on loading of an application
-app.get('/live', (req, res) => {
-	pusher.trigger('my-channel', 'my-event', { "message": "hello world" });
-});
 
 //routes
 app.use('/user', userRoutes);

@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const route = express.Router();
 
+const pusher = require('../../config/pusherconfig');
 const Vendor = require('../models/vendor');
 const Purchase = require('../models/purchase');
 const userAuth = require('../middleware/user-auth');
@@ -29,6 +30,7 @@ route.post('/', userAuth, (req, res) => {
 						purchase
 							.save()
 							.then(() => {
+								pusher.trigger('inventory', 'purchases', { "message": "Purchases" });
 								return res
 									.status(200)
 									.cookie('token', token, {

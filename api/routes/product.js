@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const route = express.Router();
 
+const pusher = require('../../config/pusherconfig');
 const Product = require('../models/product');
 const userAuth = require('../middleware/user-auth');
 
@@ -14,7 +15,8 @@ route.post('/', userAuth, (req, res) => {
 	product
 		.save()
 		.then(() => {
-			res
+			pusher.trigger('inventory', 'products', { "message": "Products" });
+			return res
 				.status(201)
 				.cookie('token', token, {
 					httpOnly: true
@@ -50,7 +52,8 @@ route.put('/:id', userAuth, (req, res) => {
 	}
 	Product.updateOne({ _id }, { $set: updatedProduct })
 		.then(() => {
-			res
+			pusher.trigger('inventory', 'products', { "message": "Products" });
+			return res
 				.status(200)
 				.cookie('token', token, {
 					httpOnly: true
@@ -65,7 +68,8 @@ route.delete('/:id', userAuth, (req, res) => {
 	const _id = req.params.id;
 	Product.deleteOne({ _id })
 		.then(() => {
-			res
+			pusher.trigger('inventory', 'products', { "message": "Products" });
+			return res
 				.status(200)
 				.cookie('token', token, {
 					httpOnly: true
