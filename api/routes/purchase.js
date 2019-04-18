@@ -30,7 +30,7 @@ route.post('/', userAuth, (req, res) => {
 						purchase
 							.save()
 							.then(() => {
-								pusher.trigger('inventory', 'purchases', { "message": "Purchases" });
+								pusher.trigger('inventory', 'purchases', { "message": "purchases" });
 								return res
 									.status(200)
 									.cookie('token', token, {
@@ -70,6 +70,22 @@ route.get('/', userAuth, (req, res) => {
 					httpOnly: true
 				})
 				.json('Purchase book is empty');
+		})
+		.catch((err) => res.status(500).json(err));
+});
+
+route.delete('/:id', userAuth, (req, res) => {
+	const token = jwt.sign({ _id: req.userData._id }, process.env.JWT_KEY, { expiresIn: '1h' });
+	const _id = req.params.id;
+	Purchase.deleteOne({ _id })
+		.then(() => {
+			pusher.trigger('inventory', 'purchases', { "message": "purchases" });
+			return res
+				.status(200)
+				.cookie('token', token, {
+					httpOnly: true
+				})
+				.json('Purchase Deleted');
 		})
 		.catch((err) => res.status(500).json(err));
 });
