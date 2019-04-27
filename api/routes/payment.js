@@ -4,7 +4,7 @@ const route = express.Router();
 
 const pusher = require('../../config/pusherconfig');
 const Vendor = require('../models/vendor');
-const Purchase = require('../models/purchase');
+const Payment = require('../models/payment');
 const userAuth = require('../middleware/user-auth');
 
 route.post('/', userAuth, (req, res) => {
@@ -13,7 +13,7 @@ route.post('/', userAuth, (req, res) => {
 		.exec()
 		.then((vendor) => {
 			if (vendor)
-				return Purchase.findOne({ invoice: req.body.invoice })
+				return Payment.findOne({ refNo: req.body.refNo })
 					.exec()
 					.then((doc) => {
 						if (doc)
@@ -22,21 +22,21 @@ route.post('/', userAuth, (req, res) => {
 								.cookie('token', token, {
 									httpOnly: true
 								})
-								.json('Invoice Number already exists');
-						const purchase = new Purchase();
+								.json('Reference Number already exists');
+						const payment = new Payment();
 						for (let key in req.body) {
-							purchase[key] = req.body[key];
+							payment[key] = req.body[key];
 						}
-						purchase
+						payment
 							.save()
 							.then(() => {
-								pusher.trigger('inventory', 'purchases', { message: 'purchases' });
+								pusher.trigger('inventory', 'payments', { message: 'payments' });
 								return res
 									.status(200)
 									.cookie('token', token, {
 										httpOnly: true
 									})
-									.json('Purchase saved');
+									.json('Payment saved');
 							})
 							.catch((err) => res.status(500).json(err));
 					})
@@ -53,23 +53,23 @@ route.post('/', userAuth, (req, res) => {
 
 route.get('/', userAuth, (req, res) => {
 	const token = jwt.sign({ _id: req.userData._id }, process.env.JWT_KEY, { expiresIn: '1h' });
-	Purchase.find()
-		.populate('products.productId vendorId', 'productName vendorName')
+	Payment.find()
+		.populate('vendorId', 'vendorName ')
 		.exec()
-		.then((purchases) => {
-			if (purchases)
+		.then((payments) => {
+			if (payments)
 				return res
 					.status(200)
 					.cookie('token', token, {
 						httpOnly: true
 					})
-					.json(purchases);
+					.json(payments);
 			return res
 				.status(404)
 				.cookie('token', token, {
 					httpOnly: true
 				})
-				.json('Purchase book is empty');
+				.json('Payment book is empty');
 		})
 		.catch((err) => res.status(500).json(err));
 });
@@ -80,19 +80,19 @@ route.put('/:id', userAuth, (req, res) => {
 		.exec()
 		.then((vendor) => {
 			if (vendor) {
-				const updatedPurchase = {};
+				const updatedPayment = {};
 				for (let key in req.body) {
-					updatedPurchase[key] = req.body[key];
+					updatedPayment[key] = req.body[key];
 				}
-				return Purchase.updateOne({ _id: req.params.id }, { $set: updatedPurchase })
+				return Payment.updateOne({ _id: req.params.id }, { $set: updatedPayment })
 					.then(() => {
-						pusher.trigger('inventory', 'purchases', { message: 'Purchases' });
+						pusher.trigger('inventory', 'payments', { message: 'payments' });
 						return res
 							.status(201)
 							.cookie('token', token, {
 								httpOnly: true
 							})
-							.json('Purchase Updated');
+							.json('Payment Updated');
 					})
 					.catch((err) => res.status(500).json(err));
 			} else {
@@ -110,15 +110,15 @@ route.put('/:id', userAuth, (req, res) => {
 route.delete('/:id', userAuth, (req, res) => {
 	const token = jwt.sign({ _id: req.userData._id }, process.env.JWT_KEY, { expiresIn: '1h' });
 	const _id = req.params.id;
-	Purchase.deleteOne({ _id })
+	Payment.deleteOne({ _id })
 		.then(() => {
-			pusher.trigger('inventory', 'purchases', { message: 'purchases' });
+			pusher.trigger('inventory', 'payment', { message: 'payment' });
 			return res
 				.status(200)
 				.cookie('token', token, {
 					httpOnly: true
 				})
-				.json('Purchase Deleted');
+				.json('Payment Deleted');
 		})
 		.catch((err) => res.status(500).json(err));
 });

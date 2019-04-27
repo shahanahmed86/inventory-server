@@ -10,6 +10,7 @@ const vendorRoutes = require('./api/routes/vendor');
 const clientRoutes = require('./api/routes/client');
 const purchaseRoutes = require('./api/routes/purchase');
 const saleRoutes = require('./api/routes/sale');
+const paymentRoutes = require('./api/routes/payment');
 
 const app = express();
 
@@ -42,5 +43,6 @@ app.use('/vendor', vendorRoutes);
 app.use('/client', clientRoutes);
 app.use('/purchase', purchaseRoutes);
 app.use('/sale', saleRoutes);
+app.use('/payment', paymentRoutes);
 
 module.exports = app;
