@@ -29,10 +29,6 @@ const paymentSchema = mongoose.Schema({
 				type: Number,
 				required: true
 			},
-			head: {
-				type: String,
-				required: true
-			},
 			description: {
 				type: String,
 				required: true
