@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
-// const { USER, PASSWORD } = process.env;
-// const url = `mongodb://${USER}:${PASSWORD}@ds349455.mlab.com:49455/inventory`;
-const url = `mongodb://localhost:27017/inventory`;
+const { USER, PASSWORD } = process.env;
+const url = `mongodb://${USER}:${PASSWORD}@ds349455.mlab.com:49455/inventory`;
+// const url = `mongodb://localhost:27017/inventory`;
 
 module.exports = mongoose
 	.connect(url, { useNewUrlParser: true })
