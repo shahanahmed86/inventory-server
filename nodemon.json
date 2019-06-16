@@ -1,0 +1,7 @@
+{
+    "env": {
+        "USER": "admin",
+        "PASSWORD": "hahaha123abc456",
+        "JWT_KEY": "your-256-bit-secret"
+    }
+}
