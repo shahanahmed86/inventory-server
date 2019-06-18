@@ -15,7 +15,7 @@ route.post('/', userAuth, (req, res) => {
 	product
 		.save()
 		.then(() => {
-			pusher.trigger('inventory', 'products', { "message": "Products" });
+			pusher.trigger('inventory', 'products', { message: 'products' });
 			return res
 				.status(201)
 				.cookie('token', token, {
@@ -52,7 +52,7 @@ route.put('/:id', userAuth, (req, res) => {
 	}
 	Product.updateOne({ _id }, { $set: updatedProduct })
 		.then(() => {
-			pusher.trigger('inventory', 'products', { "message": "Products" });
+			pusher.trigger('inventory', 'products', { message: 'products' });
 			return res
 				.status(200)
 				.cookie('token', token, {
@@ -68,7 +68,7 @@ route.delete('/:id', userAuth, (req, res) => {
 	const _id = req.params.id;
 	Product.deleteOne({ _id })
 		.then(() => {
-			pusher.trigger('inventory', 'products', { "message": "Products" });
+			pusher.trigger('inventory', 'products', { message: 'products' });
 			return res
 				.status(200)
 				.cookie('token', token, {

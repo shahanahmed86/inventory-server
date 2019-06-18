@@ -47,9 +47,9 @@ app.use('/sale', saleRoutes);
 app.use('/payment', paymentRoutes);
 app.use('/recovery', recoveryRoutes);
 
-app.use(express.static('./app/build'));
-app.get('/', (req, res) => {
-	res.sendFile(path.join(__dirname, 'app', 'build', 'index.html'));
-});
+// app.use(express.static('./app/build'));
+// app.get('/', (req, res) => {
+// 	res.sendFile(path.join(__dirname, 'app', 'build', 'index.html'));
+// });
 
 module.exports = app;
