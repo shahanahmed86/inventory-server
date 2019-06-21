@@ -27,7 +27,7 @@ app.use(cookieParser());
 //cors middleware
 app.use(
 	cors({
-		origin: 'http://localhost:3000',
+		origin: true,
 		methods: [ 'GET', 'PUT', 'POST', 'DELETE' ],
 		credentials: true,
 		allowedHeaders: [ 'Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authentication', 'Authorization' ]
@@ -47,9 +47,9 @@ app.use('/sale', saleRoutes);
 app.use('/payment', paymentRoutes);
 app.use('/recovery', recoveryRoutes);
 
-// app.use(express.static('./app/build'));
-// app.get('/', (req, res) => {
-// 	res.sendFile(path.join(__dirname, 'app', 'build', 'index.html'));
-// });
+app.use(express.static('./app/build'));
+app.get('/', (req, res) => {
+	res.sendFile(path.join(__dirname, 'app', 'build', 'index.html'));
+});
 
 module.exports = app;
