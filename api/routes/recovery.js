@@ -112,7 +112,7 @@ route.delete('/:id', userAuth, (req, res) => {
 	const _id = req.params.id;
 	Recovery.deleteOne({ _id })
 		.then(() => {
-			pusher.trigger('inventory', 'recovery', { message: 'recovery' });
+			pusher.trigger('inventory', 'recoveries', { message: 'recoveries' });
 			return res
 				.status(200)
 				.cookie('token', token, {
