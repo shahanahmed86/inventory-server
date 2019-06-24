@@ -38,18 +38,18 @@ app.use(
 require('./config/db');
 
 //routes
-app.use('/user', userRoutes);
-app.use('/product', productRoutes);
-app.use('/vendor', vendorRoutes);
-app.use('/client', clientRoutes);
-app.use('/purchase', purchaseRoutes);
-app.use('/sale', saleRoutes);
-app.use('/payment', paymentRoutes);
-app.use('/recovery', recoveryRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/product', productRoutes);
+app.use('/api/vendor', vendorRoutes);
+app.use('/api/client', clientRoutes);
+app.use('/api/purchase', purchaseRoutes);
+app.use('/api/sale', saleRoutes);
+app.use('/api/payment', paymentRoutes);
+app.use('/api/recovery', recoveryRoutes);
 
-app.use(express.static('./app/build'));
-app.get('/', (req, res) => {
-	res.sendFile(path.join(__dirname, 'app', 'build', 'index.html'));
-});
+// app.use(express.static('./app/build'));
+// app.get('/', (req, res) => {
+// 	res.sendFile(path.join(__dirname, 'app', 'build', 'index.html'));
+// });
 
 module.exports = app;
