@@ -13,7 +13,7 @@
     "express": "^4.16.4",
     "global": "^4.3.2",
     "jsonwebtoken": "^8.5.0",
-    "mongoose": "^5.4.15",
+    "mongoose": "^5.7.5",
     "morgan": "^1.9.1",
     "nodemon": "^1.19.1",
     "pusher": "^2.2.0"
